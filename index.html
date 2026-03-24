@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My First GitHub Repo</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #c8ff00;
+            --accent2: #7c6dff;
+            --text: #e8e8f0;
+            --muted: #5a5a72;
+            --card: #13131e;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* Glow blobs */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent2);
+            top: -200px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+        }
+
+        .nav-link {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+        }
+
+        /* HERO */
+        .hero {
+            padding: 90px 0 70px;
+        }
+
+        .hero-tag {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-tag::before {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.8rem, 8vw, 5.5rem);
+            font-weight: 800;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 32px;
+        }
+
+        .hero h1 span.highlight {
+            color: var(--accent);
+            display: block;
+        }
+
+        .hero-desc {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.8;
+            max-width: 520px;
+            margin-bottom: 48px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--muted);
+            transform: translateY(-2px);
+        }
+
+        /* STATS ROW */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1px solid var(--border);
+            margin-bottom: 80px;
+            animation: fadeUp 0.8s ease 0.3s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat {
+            padding: 32px 28px;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* FILES SECTION */
+        .section-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-tree {
+            background: var(--card);
+            border: 1px solid var(--border);
+            margin-bottom: 60px;
+        }
+
+        .file-tree-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background: rgba(200, 255, 0, 0.03);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .file-icon {
+            color: var(--accent2);
+            font-size: 0.9rem;
+            width: 16px;
+        }
+
+        .file-icon.folder {
+            color: var(--accent);
+        }
+
+        .file-name {
+            flex: 1;
+            color: var(--text);
+        }
+
+        .file-commit {
+            color: var(--muted);
+            font-size: 0.7rem;
+            flex: 2;
+        }
+
+        .file-time {
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+
+        .file-item:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .file-item:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .file-item:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .file-item:nth-child(4) {
+            animation-delay: 0.25s;
+        }
+
+        .file-item:nth-child(5) {
+            animation-delay: 0.3s;
+        }
+
+        /* README section */
+        .readme {
+            background: var(--card);
+            border: 1px solid var(--border);
+            margin-bottom: 80px;
+        }
+
+        .readme-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .readme-body {
+            padding: 36px;
+        }
+
+        .readme-body h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .readme-body p {
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.9;
+            margin-bottom: 20px;
+        }
+
+        .readme-body code {
+            background: var(--border);
+            color: var(--accent);
+            padding: 2px 8px;
+            font-size: 0.78rem;
+            border-radius: 2px;
+        }
+
+        .code-block {
+            background: #0d0d14;
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            margin: 24px 0;
+            font-size: 0.78rem;
+            line-height: 1.8;
+            color: #8888aa;
+            overflow-x: auto;
+        }
+
+        .code-block .cmd {
+            color: var(--accent);
+        }
+
+        .code-block .path {
+            color: var(--accent2);
+        }
+
+        .code-block .comment {
+            color: var(--muted);
+        }
+
+        /* BADGE ROW */
+        .badge-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .badge.accent {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .badge.purple {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            transition: color 0.2s;
+        }
+
+        .footer-right a:hover {
+            color: var(--text);
+        }
+
+        /* Animations */
+        .hero {
+            animation: fadeUp 0.7s ease 0s both;
+        }
+
+        .stats {
+            animation: fadeUp 0.7s ease 0.2s both;
+        }
+
+        .file-tree {
+            animation: fadeUp 0.7s ease 0.35s both;
+        }
+
+        .readme {
+            animation: fadeUp 0.7s ease 0.45s both;
+        }
+
+        /* Blinking cursor */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--accent);
+            margin-left: 4px;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .file-commit,
+            .file-time {
+                display: none;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <nav>
+            <span class="nav-logo">username / my-first-repo</span>
+            <a href="https://github.com" target="_blank" class="nav-link">GitHub ↗</a>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-tag">Repository</div>
+            <h1>
+                My First<br />
+                <span class="highlight">GitHub Repo<span class="cursor"></span></span>
+            </h1>
+            <p class="hero-desc">
+                Welcome to my first open-source project. This is where it all begins —
+                a place to learn, build, and ship real things.
+            </p>
+            <div class="btn-row">
+                <a href="#" class="btn btn-primary">⭐ Star Repo</a>
+                <a href="#" class="btn btn-ghost">⑂ Fork</a>
+            </div>
+        </section>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-num">01</span>
+                <span class="stat-label">Commit</span>
+            </div>
+            <div class="stat">
+                <span class="stat-num">0</span>
+                <span class="stat-label">Stars</span>
+            </div>
+            <div class="stat">
+                <span class="stat-num">MIT</span>
+                <span class="stat-label">License</span>
+            </div>
+        </div>
+
+        <div class="section-label">File Explorer</div>
+        <div class="file-tree">
+            <div class="file-tree-header">
+                <span>main · 1 commit</span>
+                <span>just now</span>
+            </div>
+            <div class="file-item">
+                <span class="file-icon folder">📁</span>
+                <span class="file-name">src</span>
+                <span class="file-commit">initial project structure</span>
+                <span class="file-time">just now</span>
+            </div>
+            <div class="file-item">
+                <span class="file-icon">📄</span>
+                <span class="file-name">index.html</span>
+                <span class="file-commit">initial commit</span>
+                <span class="file-time">just now</span>
+            </div>
+            <div class="file-item">
+                <span class="file-icon">🎨</span>
+                <span class="file-name">style.css</span>
+                <span class="file-commit">add styles</span>
+                <span class="file-time">just now</span>
+            </div>
+            <div class="file-item">
+                <span class="file-icon">⚙️</span>
+                <span class="file-name">.gitignore</span>
+                <span class="file-commit">ignore node_modules</span>
+                <span class="file-time">just now</span>
+            </div>
+            <div class="file-item">
+                <span class="file-icon">📖</span>
+                <span class="file-name">README.md</span>
+                <span class="file-commit">add readme</span>
+                <span class="file-time">just now</span>
+            </div>
+        </div>
+
+        <div class="section-label">README.md</div>
+        <div class="readme">
+            <div class="readme-header">
+                <span>📖</span>
+                <span>README.md</span>
+            </div>
+            <div class="readme-body">
+                <h2>My First GitHub Repo 🚀</h2>
+
+                <div class="badge-row">
+                    <span class="badge accent">v0.1.0</span>
+                    <span class="badge purple">HTML/CSS</span>
+                    <span class="badge">MIT License</span>
+                </div>
+
+                <p>
+                    This is my very first GitHub repository. A milestone in my coding journey —
+                    built with <code>HTML</code>, <code>CSS</code>, and a lot of curiosity.
+                </p>
+
+                <p>
+                    The goal is simple: learn version control, push real code, and start building
+                    things in public. Every great developer started with a first commit.
+                </p>
+
+                <div class="code-block">
+                    <span class="comment"># Clone this repo</span><br />
+                    <span class="cmd">git clone</span> <span
+                        class="path">https://github.com/username/my-first-repo.git</span><br /><br />
+                    <span class="comment"># Open locally</span><br />
+                    <span class="cmd">cd</span> <span class="path">my-first-repo</span><br />
+                    <span class="cmd">open</span> index.html
+                </div>
+
+                <p>
+                    Feel free to star ⭐ the repo, fork it, or leave feedback via issues.
+                    Built with ❤️ and zero prior experience.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <span>© 2026 username · Built with HTML & CSS</span>
+            <div class="footer-right">
+                <a href="#">Issues</a>
+                <a href="#">License</a>
+                <a href="#">Contact</a>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>
